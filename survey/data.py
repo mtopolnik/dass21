@@ -4,14 +4,20 @@
 # python manage.py migrate
 
 PEOPLE = [
-    {"name": "Mia Marton", "sex": "F"},
     {"name": "Karla Čulo", "sex": "F"},
+    {"name": "Marija Dumančić", "sex": "F"},
+    {"name": "Tea Fruk", "sex": "F"},
+    {"name": "Marija Gršić", "sex": "F"},
+    {"name": "Franka Holjevac", "sex": "F"},
+    {"name": "Ema Jurač", "sex": "F"},
+    {"name": "Katarina Kunjko", "sex": "F"},
+    {"name": "Mia Marton", "sex": "F"},
+    {"name": "Sofija Matejić", "sex": "F"},
+    {"name": "Ana Šimić", "sex": "F"},
+    {"name": "Aleksandar Topolnik", "sex": "M"},
+    {"name": "Lili Topolnik", "sex": "F"},
     {"name": "Marko Topolnik", "sex": "M"},
     {"name": "Tijana Gojić Topolnik", "sex": "F"},
-    {"name": "Lili Topolnik", "sex": "F"},
-    {"name": "Aleksandar Topolnik", "sex": "M"},
-    {"name": "Sofija Matejić", "sex": "F"},
-    {"name": "Tea Fruk", "sex": "F"},
 ]
 
 PEOPLE_BY_NAME = {p["name"]: p for p in PEOPLE}
