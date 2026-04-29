@@ -1,0 +1,12 @@
+{% extends "survey/base.html" %}
+{% block title %}Datum još nije dostupan{% endblock %}
+{% block content %}
+  <div class="card">
+    <h1>{{ person }}</h1>
+    <p>Upitnik za <strong>{{ date|date:"l, d.m.Y." }}</strong> još nije dostupan.</p>
+    <p>Današnji datum je {{ today|date:"d.m.Y." }}. Vratite se kada nastupi taj dan.</p>
+    <div class="actions">
+      <a class="btn" href="{% url 'calendar' person %}">Natrag na kalendar</a>
+    </div>
+  </div>
+{% endblock %}

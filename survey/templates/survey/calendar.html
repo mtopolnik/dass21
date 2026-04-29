@@ -1,0 +1,23 @@
+{% extends "survey/base.html" %}
+{% block title %}{{ person }} — kalendar{% endblock %}
+{% block content %}
+  <div class="card">
+    <h1>{{ person }}</h1>
+    <p>Datum danas: <strong>{{ today|date:"d.m.Y." }}</strong></p>
+    <p>Kliknite na datum kako biste ispunili (ili izmijenili) upitnik za taj dan. Budući datumi su zaključani.</p>
+    <ul class="date-list">
+      {% for entry in entries %}
+        <li>
+          {% if entry.is_future %}
+            <span class="disabled">{{ entry.date|date:"l, d.m.Y." }}</span>
+            <span class="badge">budući</span>
+          {% else %}
+            <a href="{% url 'questionnaire' person entry.iso %}">{{ entry.date|date:"l, d.m.Y." }}</a>
+            {% if entry.is_today %}<span class="badge today">DANAS</span>{% endif %}
+            {% if entry.is_filled %}<span class="badge done">ispunjeno</span>{% endif %}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

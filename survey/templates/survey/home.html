@@ -1,0 +1,13 @@
+{% extends "survey/base.html" %}
+{% block title %}Odaberite sudionika{% endblock %}
+{% block content %}
+  <div class="card">
+    <h1>Odaberite sebe</h1>
+    <p>Kliknite na svoje ime kako biste otvorili svoj kalendar upitnika.</p>
+    <ul class="people-list">
+      {% for person in people %}
+        <li><a href="{% url 'calendar' person.name %}">{{ person.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

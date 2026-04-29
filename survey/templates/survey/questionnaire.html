@@ -1,0 +1,53 @@
+{% extends "survey/base.html" %}
+{% block title %}{{ person }} — {{ date|date:"d.m.Y." }}{% endblock %}
+{% block content %}
+  <div class="card">
+    <h1>{{ person }} — {{ date|date:"l, d.m.Y." }}</h1>
+    {% if is_edit %}<p><em>Postojeći odgovori — možete ih izmijeniti i ponovno pohraniti.</em></p>{% endif %}
+
+    <h3>Za svaku tvrdnju označite broj u stupcu koji najbolje opisuje kako ste se osjećali u zadnjih tjedan dana.</h3>
+    <div class="legend">
+      <b>0</b> — Uopće se nije odnosilo na mene.<br>
+      <b>1</b> — Odnosilo se na mene u određenoj mjeri ili neko vrijeme.<br>
+      <b>2</b> — Odnosilo se na mene u većoj mjeri ili dobar dio vremena.<br>
+      <b>3</b> — Gotovo u potpunosti ili većinu vremena se odnosilo na mene.
+    </div>
+
+    {% if errors %}
+      <div class="errors">Nedostaju odgovori za pitanja: {{ errors|join:", " }}.</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <table class="q-table">
+        <thead>
+          <tr>
+            <th class="q-num">#</th>
+            <th>Pitanje</th>
+            <th class="q-num">0</th>
+            <th class="q-num">1</th>
+            <th class="q-num">2</th>
+            <th class="q-num">3</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in questions %}
+            <tr {% if q.num in errors %}class="error"{% endif %}>
+              <th class="q-num">{{ q.num }}</th>
+              <td>{{ q.text }}</td>
+              <td class="q-opt"><input type="radio" required name="question_{{ q.num }}" value="0" {% if q.selected == 0 %}checked{% endif %}></td>
+              <td class="q-opt"><input type="radio" required name="question_{{ q.num }}" value="1" {% if q.selected == 1 %}checked{% endif %}></td>
+              <td class="q-opt"><input type="radio" required name="question_{{ q.num }}" value="2" {% if q.selected == 2 %}checked{% endif %}></td>
+              <td class="q-opt"><input type="radio" required name="question_{{ q.num }}" value="3" {% if q.selected == 3 %}checked{% endif %}></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="actions">
+        <button type="submit" class="btn">{% if is_edit %}Pohrani izmjene{% else %}Pohrani{% endif %}</button>
+        <a class="btn secondary" href="{% url 'calendar' person %}">Natrag</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
