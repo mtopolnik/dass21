@@ -1,6 +1,7 @@
+import csv
 from datetime import datetime, timedelta
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -12,7 +13,8 @@ from .data import (
     PEOPLE_BY_NAME,
     questions_for,
 )
-from .models import Response
+from .models import Pressure, Response
+from .pressure import ensure_pressure_for_dates
 
 
 def _experiment_dates():
@@ -69,13 +71,16 @@ def results(request, person):
     _get_person(person)
     responses = Response.objects.filter(person=person).order_by("date")
 
+    ensure_pressure_for_dates(_experiment_dates())
+    pressure_by_date = {p.date: p for p in Pressure.objects.all()}
+
     rows = []
     d_scores = []
     a_scores = []
     s_scores = []
     for r in responses:
         sc = r.scores()
-        rows.append({"date": r.date, "scores": sc})
+        rows.append({"date": r.date, "scores": sc, "pressure": pressure_by_date.get(r.date)})
         d_scores.append(sc["depression"]["score"])
         a_scores.append(sc["anxiety"]["score"])
         s_scores.append(sc["stress"]["score"])
@@ -97,6 +102,36 @@ def results(request, person):
         "survey/results.html",
         {"person": person, "rows": rows, "averages": averages},
     )
+
+
+def export_csv(request):
+    ensure_pressure_for_dates(_experiment_dates())
+    pressure_by_date = {p.date: p for p in Pressure.objects.all()}
+
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = 'attachment; filename="dass21_export.csv"'
+    writer = csv.writer(response)
+    header = ["person", "sex", "date"]
+    header += [f"q{i}" for i in range(1, 22)]
+    header += ["depression", "anxiety", "stress"]
+    header += ["pressure_07", "pressure_12", "pressure_17"]
+    writer.writerow(header)
+
+    for r in Response.objects.all().order_by("person", "date"):
+        person = PEOPLE_BY_NAME.get(r.person)
+        sex = person["sex"] if person else ""
+        p = pressure_by_date.get(r.date)
+        row = [r.person, sex, r.date.isoformat()]
+        row += [getattr(r, f"q{i}") for i in range(1, 22)]
+        row += [r.depression(), r.anxiety(), r.stress()]
+        row += [
+            p.p_morning if p else "",
+            p.p_noon if p else "",
+            p.p_evening if p else "",
+        ]
+        writer.writerow(row)
+
+    return response
 
 
 def questionnaire(request, person, date_str):

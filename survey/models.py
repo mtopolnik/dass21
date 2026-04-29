@@ -20,6 +20,23 @@ def severity(scale, score):
     return "Izrazito teško"
 
 
+class Pressure(models.Model):
+    date = models.DateField(unique=True)
+    p_morning = models.FloatField(null=True, blank=True)  # 07:00 local
+    p_noon = models.FloatField(null=True, blank=True)     # 12:00 local
+    p_evening = models.FloatField(null=True, blank=True)  # 17:00 local
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("date",)
+
+    def __str__(self):
+        return f"P({self.date}) {self.p_morning}/{self.p_noon}/{self.p_evening}"
+
+    def is_complete(self):
+        return all(v is not None for v in (self.p_morning, self.p_noon, self.p_evening))
+
+
 class Response(models.Model):
     person = models.CharField(max_length=64)
     date = models.DateField()
