@@ -1,0 +1,77 @@
+{% extends "survey/base.html" %}
+{% block title %}{{ person }} — rezultati{% endblock %}
+{% block content %}
+  <div class="card">
+    <h1>{{ person }} — rezultati</h1>
+    <p>DASS-21 podljestvice: <strong>D</strong>epresija, <strong>A</strong>nksioznost, <strong>S</strong>tres. Bodovi su pomnoženi s 2 prema standardnom DASS-21 postupku.</p>
+
+    {% if not rows %}
+      <p><em>Još nema ispunjenih upitnika.</em></p>
+    {% else %}
+      <table class="q-table" style="font-size: 16px;">
+        <thead>
+          <tr>
+            <th>Datum</th>
+            <th class="q-num">D</th>
+            <th>Depresija</th>
+            <th class="q-num">A</th>
+            <th>Anksioznost</th>
+            <th class="q-num">S</th>
+            <th>Stres</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td>{{ row.date|date:"d.m.Y." }}</td>
+              <td class="q-num"><strong>{{ row.scores.depression.score }}</strong></td>
+              <td class="sev sev-{{ row.scores.depression.severity|slugify }}">{{ row.scores.depression.severity }}</td>
+              <td class="q-num"><strong>{{ row.scores.anxiety.score }}</strong></td>
+              <td class="sev sev-{{ row.scores.anxiety.severity|slugify }}">{{ row.scores.anxiety.severity }}</td>
+              <td class="q-num"><strong>{{ row.scores.stress.score }}</strong></td>
+              <td class="sev sev-{{ row.scores.stress.severity|slugify }}">{{ row.scores.stress.severity }}</td>
+            </tr>
+          {% endfor %}
+          {% if averages %}
+            <tr style="background: #eaf6f8; font-weight: bold;">
+              <td>Prosjek</td>
+              <td class="q-num">{{ averages.depression.score }}</td>
+              <td class="sev sev-{{ averages.depression.severity|slugify }}">{{ averages.depression.severity }}</td>
+              <td class="q-num">{{ averages.anxiety.score }}</td>
+              <td class="sev sev-{{ averages.anxiety.severity|slugify }}">{{ averages.anxiety.severity }}</td>
+              <td class="q-num">{{ averages.stress.score }}</td>
+              <td class="sev sev-{{ averages.stress.severity|slugify }}">{{ averages.stress.severity }}</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+
+      <h3 style="margin-top: 28px;">Granične vrijednosti (Lovibond &amp; Lovibond, DASS-21)</h3>
+      <table class="q-table" style="font-size: 14px;">
+        <thead>
+          <tr><th>Razina</th><th>Depresija</th><th>Anksioznost</th><th>Stres</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Normalno</td><td>0–9</td><td>0–7</td><td>0–14</td></tr>
+          <tr><td>Blago</td><td>10–13</td><td>8–9</td><td>15–18</td></tr>
+          <tr><td>Umjereno</td><td>14–20</td><td>10–14</td><td>19–25</td></tr>
+          <tr><td>Teško</td><td>21–27</td><td>15–19</td><td>26–33</td></tr>
+          <tr><td>Izrazito teško</td><td>28+</td><td>20+</td><td>34+</td></tr>
+        </tbody>
+      </table>
+    {% endif %}
+
+    <div class="actions">
+      <a class="btn secondary" href="{% url 'calendar' person %}">Natrag na kalendar</a>
+    </div>
+  </div>
+
+  <style>
+    .sev { font-size: 14px; }
+    .sev-normalno { color: #2e7d32; }
+    .sev-blago { color: #ad8b00; }
+    .sev-umjereno { color: #d97706; }
+    .sev-tesko { color: #c62828; }
+    .sev-izrazito-tesko { color: #7a0019; font-weight: bold; }
+  </style>
+{% endblock %}

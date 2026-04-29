@@ -5,6 +5,7 @@
     <h1>{{ person }}</h1>
     <p>Datum danas: <strong>{{ today|date:"d.m.Y." }}</strong></p>
     <p>Kliknite na datum kako biste ispunili (ili izmijenili) upitnik za taj dan. Budući datumi su zaključani.</p>
+    <p><a href="{% url 'results' person %}">Pregled rezultata →</a></p>
     <ul class="date-list">
       {% for entry in entries %}
         <li>

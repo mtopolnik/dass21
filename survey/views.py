@@ -65,6 +65,40 @@ def calendar(request, person):
     )
 
 
+def results(request, person):
+    _get_person(person)
+    responses = Response.objects.filter(person=person).order_by("date")
+
+    rows = []
+    d_scores = []
+    a_scores = []
+    s_scores = []
+    for r in responses:
+        sc = r.scores()
+        rows.append({"date": r.date, "scores": sc})
+        d_scores.append(sc["depression"]["score"])
+        a_scores.append(sc["anxiety"]["score"])
+        s_scores.append(sc["stress"]["score"])
+
+    averages = None
+    if rows:
+        from .models import severity as _sev
+        avg_d = sum(d_scores) / len(d_scores)
+        avg_a = sum(a_scores) / len(a_scores)
+        avg_s = sum(s_scores) / len(s_scores)
+        averages = {
+            "depression": {"score": round(avg_d, 1), "severity": _sev("depression", avg_d)},
+            "anxiety": {"score": round(avg_a, 1), "severity": _sev("anxiety", avg_a)},
+            "stress": {"score": round(avg_s, 1), "severity": _sev("stress", avg_s)},
+        }
+
+    return render(
+        request,
+        "survey/results.html",
+        {"person": person, "rows": rows, "averages": averages},
+    )
+
+
 def questionnaire(request, person, date_str):
     person_obj = _get_person(person)
     d = _parse_date(date_str)
