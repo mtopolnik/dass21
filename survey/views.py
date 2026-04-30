@@ -112,9 +112,9 @@ def export_csv(request):
     response["Content-Disposition"] = 'attachment; filename="dass21_export.csv"'
     writer = csv.writer(response)
     header = ["person", "sex", "date", "submitted_at", "updated_at"]
-    header += [f"q{i}" for i in range(1, 22)]
     header += ["depression", "anxiety", "stress"]
     header += ["pressure_07", "pressure_12", "pressure_17"]
+    header += [f"q{i}" for i in range(1, 22)]
     writer.writerow(header)
 
     for r in Response.objects.all().order_by("person", "date"):
@@ -124,13 +124,13 @@ def export_csv(request):
         submitted_at = timezone.localtime(r.created_at).isoformat(timespec="seconds")
         updated_at = timezone.localtime(r.updated_at).isoformat(timespec="seconds")
         row = [r.person, sex, r.date.isoformat(), submitted_at, updated_at]
-        row += [getattr(r, f"q{i}") for i in range(1, 22)]
         row += [r.depression(), r.anxiety(), r.stress()]
         row += [
             p.p_morning if p else "",
             p.p_noon if p else "",
             p.p_evening if p else "",
         ]
+        row += [getattr(r, f"q{i}") for i in range(1, 22)]
         writer.writerow(row)
 
     return response
