@@ -14,7 +14,6 @@ from .data import (
     questions_for,
 )
 from .models import Pressure, Response
-from .pressure import ensure_pressure_for_dates
 
 
 def _experiment_dates():
@@ -71,7 +70,6 @@ def results(request, person):
     _get_person(person)
     responses = Response.objects.filter(person=person).order_by("date")
 
-    ensure_pressure_for_dates(_experiment_dates())
     pressure_by_date = {p.date: p for p in Pressure.objects.all()}
 
     rows = []
@@ -105,7 +103,6 @@ def results(request, person):
 
 
 def export_csv(request):
-    ensure_pressure_for_dates(_experiment_dates())
     pressure_by_date = {p.date: p for p in Pressure.objects.all()}
 
     response = HttpResponse(content_type="text/csv; charset=utf-8")

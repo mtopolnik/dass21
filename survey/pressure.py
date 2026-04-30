@@ -51,7 +51,7 @@ def ensure_pressure_for_dates(dates):
     url = "https://api.open-meteo.com/v1/forecast?" + urllib.parse.urlencode(params)
 
     try:
-        with urllib.request.urlopen(url, timeout=15) as resp:
+        with urllib.request.urlopen(url, timeout=5) as resp:
             payload = json.loads(resp.read())
     except Exception as exc:
         logger.warning("Open-Meteo fetch failed: %s", exc)
