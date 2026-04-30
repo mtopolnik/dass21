@@ -111,7 +111,7 @@ def export_csv(request):
     response = HttpResponse(content_type="text/csv; charset=utf-8")
     response["Content-Disposition"] = 'attachment; filename="dass21_export.csv"'
     writer = csv.writer(response)
-    header = ["person", "sex", "date"]
+    header = ["person", "sex", "date", "submitted_at", "updated_at"]
     header += [f"q{i}" for i in range(1, 22)]
     header += ["depression", "anxiety", "stress"]
     header += ["pressure_07", "pressure_12", "pressure_17"]
@@ -121,7 +121,9 @@ def export_csv(request):
         person = PEOPLE_BY_NAME.get(r.person)
         sex = person["sex"] if person else ""
         p = pressure_by_date.get(r.date)
-        row = [r.person, sex, r.date.isoformat()]
+        submitted_at = timezone.localtime(r.created_at).isoformat(timespec="seconds")
+        updated_at = timezone.localtime(r.updated_at).isoformat(timespec="seconds")
+        row = [r.person, sex, r.date.isoformat(), submitted_at, updated_at]
         row += [getattr(r, f"q{i}") for i in range(1, 22)]
         row += [r.depression(), r.anxiety(), r.stress()]
         row += [
