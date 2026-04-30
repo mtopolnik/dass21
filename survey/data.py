@@ -77,5 +77,5 @@ def questions_for(sex):
     return QUESTIONS_F if sex == "F" else QUESTIONS_M
 
 
-EXPERIMENT_START = "2026-04-22"
-EXPERIMENT_DAYS = 14
+EXPERIMENT_START = "2026-04-30"
+EXPERIMENT_DAYS = 30
