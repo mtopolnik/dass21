@@ -8,6 +8,7 @@ PEOPLE = [
     {"name": "Marija Dumančić", "sex": "F"},
     {"name": "Tea Fruk", "sex": "F"},
     {"name": "Marija Gršić", "sex": "F"},
+    {"name": "Iskra Grubišić", "sex": "F"},
     {"name": "Franka Holjevac", "sex": "F"},
     {"name": "Nika Inđić", "sex": "F"},
     {"name": "Ema Jurač", "sex": "F"},
