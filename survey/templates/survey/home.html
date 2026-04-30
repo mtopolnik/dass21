@@ -6,7 +6,10 @@
     <p>Kliknite na svoje ime kako biste otvorili svoj kalendar upitnika.</p>
     <ul class="people-list">
       {% for person in people %}
-        <li><a href="{% url 'calendar' person.name %}">{{ person.name }}</a></li>
+        <li><a href="{% url 'calendar' person.name %}">
+          <span class="person-name">{{ person.name }}</span>
+          {% if person.caught_up %}<span class="caught-up" title="Sve ispunjeno">&#10004;</span>{% endif %}
+        </a></li>
       {% endfor %}
     </ul>
   </div>

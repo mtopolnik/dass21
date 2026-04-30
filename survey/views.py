@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime, timedelta
 
+from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -36,7 +37,22 @@ def _parse_date(date_str):
 
 
 def home(request):
-    return render(request, "survey/home.html", {"people": PEOPLE})
+    today = timezone.localdate()
+    required_dates = [d for d in _experiment_dates() if d <= today]
+    required_count = len(required_dates)
+    counts = {}
+    for person, count in (
+        Response.objects.filter(date__in=required_dates)
+        .values("person")
+        .annotate(c=Count("id"))
+        .values_list("person", "c")
+    ):
+        counts[person] = count
+    people = [
+        {**p, "caught_up": required_count > 0 and counts.get(p["name"], 0) >= required_count}
+        for p in PEOPLE
+    ]
+    return render(request, "survey/home.html", {"people": people})
 
 
 def calendar(request, person):

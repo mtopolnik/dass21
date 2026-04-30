@@ -83,7 +83,10 @@
     .people-list { list-style: none; padding: 0; }
     .people-list li { margin: 8px 0; }
     .people-list a {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       padding: 12px 16px;
       background: white;
       border: 1px solid #91bbc2;
@@ -93,6 +96,12 @@
       font-size: 18px;
     }
     .people-list a:hover { background: #eaf6f8; }
+    .people-list .caught-up {
+      color: #2e8b2e;
+      font-size: 22px;
+      font-weight: bold;
+      line-height: 1;
+    }
     .date-list { list-style: none; padding: 0; }
     .date-list li {
       margin: 6px 0;
