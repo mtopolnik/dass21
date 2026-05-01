@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime, timedelta
 
+from django.contrib.auth.hashers import check_password
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -14,6 +15,11 @@ from .data import (
     questions_for,
 )
 from .models import Pressure, Response
+
+ADMIN_PASSWORD_HASH = (
+    "pbkdf2_sha256$1200000$yDHvukkVmMM3nNQoHCXFbN$"
+    "CLe8/VZ+jmNGO/skKwRo0cr2bmLcyZzmAzx41nW8+Fc="
+)
 
 
 def _experiment_dates():
@@ -36,6 +42,10 @@ def _parse_date(date_str):
 
 
 def home(request):
+    return render(request, "survey/home.html", {"people": PEOPLE})
+
+
+def _people_with_status():
     today = timezone.localdate()
     dates = _experiment_dates()
     past_dates = [d for d in dates if d < today]
@@ -51,7 +61,31 @@ def home(request):
         caught_up = bool(required_dates) and all(d in f for d in required_dates)
         behind = any(d not in f for d in past_dates)
         people.append({**p, "caught_up": caught_up, "behind": behind})
-    return render(request, "survey/home.html", {"people": people})
+    return people
+
+
+def admin_login(request):
+    if request.session.get("is_admin"):
+        return redirect(reverse("admin_home"))
+    error = None
+    if request.method == "POST":
+        password = request.POST.get("password", "")
+        if check_password(password, ADMIN_PASSWORD_HASH):
+            request.session["is_admin"] = True
+            return redirect(reverse("admin_home"))
+        error = "Neispravna lozinka."
+    return render(request, "survey/admin_login.html", {"error": error})
+
+
+def admin_home(request):
+    if not request.session.get("is_admin"):
+        return redirect(reverse("admin_login"))
+    return render(request, "survey/admin_home.html", {"people": _people_with_status()})
+
+
+def admin_logout(request):
+    request.session.pop("is_admin", None)
+    return redirect(reverse("home"))
 
 
 def calendar(request, person):

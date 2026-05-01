@@ -32,6 +32,7 @@
       opacity: 0.9;
     }
     nav.topbar .home-link:hover { opacity: 1; }
+    nav.topbar .nav-links { display: flex; gap: 18px; align-items: center; }
     .container {
       max-width: 900px;
       margin: 24px auto;
@@ -145,7 +146,10 @@
 <body>
   <nav class="topbar">
     <a class="brand" href="{% url 'home' %}">DASS-21</a>
-    <a class="home-link" href="{% url 'home' %}">Početna</a>
+    <div class="nav-links">
+      <a class="home-link" href="{% url 'home' %}">Početna</a>
+      <a class="home-link" href="{% if request.session.is_admin %}{% url 'admin_home' %}{% else %}{% url 'admin_login' %}{% endif %}">Admin</a>
+    </div>
   </nav>
   <div class="container">
     {% block content %}{% endblock %}
