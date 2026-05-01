@@ -1,7 +1,6 @@
 import csv
 from datetime import datetime, timedelta
 
-from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -38,20 +37,20 @@ def _parse_date(date_str):
 
 def home(request):
     today = timezone.localdate()
-    required_dates = [d for d in _experiment_dates() if d <= today]
-    required_count = len(required_dates)
-    counts = {}
-    for person, count in (
-        Response.objects.filter(date__in=required_dates)
-        .values("person")
-        .annotate(c=Count("id"))
-        .values_list("person", "c")
+    dates = _experiment_dates()
+    past_dates = [d for d in dates if d < today]
+    required_dates = [d for d in dates if d <= today]
+    filled = {}
+    for person, date in Response.objects.filter(date__in=required_dates).values_list(
+        "person", "date"
     ):
-        counts[person] = count
-    people = [
-        {**p, "caught_up": required_count > 0 and counts.get(p["name"], 0) >= required_count}
-        for p in PEOPLE
-    ]
+        filled.setdefault(person, set()).add(date)
+    people = []
+    for p in PEOPLE:
+        f = filled.get(p["name"], set())
+        caught_up = bool(required_dates) and all(d in f for d in required_dates)
+        behind = any(d not in f for d in past_dates)
+        people.append({**p, "caught_up": caught_up, "behind": behind})
     return render(request, "survey/home.html", {"people": people})
 
 

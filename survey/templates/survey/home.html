@@ -8,7 +8,8 @@
       {% for person in people %}
         <li><a href="{% url 'calendar' person.name %}">
           <span class="person-name">{{ person.name }}</span>
-          {% if person.caught_up %}<span class="caught-up" title="Sve ispunjeno">&#10004;</span>{% endif %}
+          {% if person.caught_up %}<span class="caught-up" title="Sve ispunjeno">&#10004;</span>
+          {% elif person.behind %}<span class="behind" title="Nedostaje upitnik">&#9650;</span>{% endif %}
         </a></li>
       {% endfor %}
     </ul>
