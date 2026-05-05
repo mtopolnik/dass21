@@ -13,6 +13,7 @@ PEOPLE = [
     {"name": "Nika Inđić", "sex": "F"},
     {"name": "Ema Jurač", "sex": "F"},
     {"name": "Mia Karlovčan", "sex": "F"},
+    {"name": "Kristina Kovačević", "sex": "F"},
     {"name": "Katarina Kunjko", "sex": "F"},
     {"name": "Mia Marton", "sex": "F"},
     {"name": "Sofija Matejić", "sex": "F"},
