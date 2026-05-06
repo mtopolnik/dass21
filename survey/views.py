@@ -160,6 +160,7 @@ def export_csv(request):
     header = ["person", "sex", "date", "submitted_at", "updated_at"]
     header += ["depression", "anxiety", "stress"]
     header += ["pressure_07", "pressure_12", "pressure_17"]
+    header += ["wind_direction_deg", "wind_direction"]
     header += [f"q{i}" for i in range(1, 22)]
     writer.writerow(header)
 
@@ -175,6 +176,8 @@ def export_csv(request):
             p.p_morning if p else "",
             p.p_noon if p else "",
             p.p_evening if p else "",
+            round(p.wind_direction, 1) if p and p.wind_direction is not None else "",
+            p.wind_cardinal() if p and p.wind_direction is not None else "",
         ]
         row += [getattr(r, f"q{i}") for i in range(1, 22)]
         writer.writerow(row)

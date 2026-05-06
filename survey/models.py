@@ -20,11 +20,26 @@ def severity(scale, score):
     return "Izrazito teško"
 
 
+CARDINAL_POINTS = (
+    "S", "SSI", "SI", "ISI", "I", "IJI", "JI", "JJI",
+    "J", "JJZ", "JZ", "ZJZ", "Z", "ZSZ", "SZ", "SSZ",
+)
+
+
+def cardinal(deg):
+    """Convert degrees (meteorological, from-direction) to a 16-point Croatian compass label."""
+    if deg is None:
+        return None
+    idx = int((deg % 360) / 22.5 + 0.5) % 16
+    return CARDINAL_POINTS[idx]
+
+
 class Pressure(models.Model):
     date = models.DateField(unique=True)
     p_morning = models.FloatField(null=True, blank=True)  # 07:00 local
     p_noon = models.FloatField(null=True, blank=True)     # 12:00 local
     p_evening = models.FloatField(null=True, blank=True)  # 17:00 local
+    wind_direction = models.FloatField(null=True, blank=True)  # prevailing, degrees (meteorological)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -34,7 +49,13 @@ class Pressure(models.Model):
         return f"P({self.date}) {self.p_morning}/{self.p_noon}/{self.p_evening}"
 
     def is_complete(self):
-        return all(v is not None for v in (self.p_morning, self.p_noon, self.p_evening))
+        return all(
+            v is not None
+            for v in (self.p_morning, self.p_noon, self.p_evening, self.wind_direction)
+        )
+
+    def wind_cardinal(self):
+        return cardinal(self.wind_direction)
 
 
 class Response(models.Model):

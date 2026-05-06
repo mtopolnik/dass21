@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 import urllib.parse
 import urllib.request
 from datetime import date
@@ -16,8 +17,25 @@ COLUMNS = ("p_morning", "p_noon", "p_evening")
 logger = logging.getLogger(__name__)
 
 
+def _prevailing_direction(dirs_speeds):
+    """Speed-weighted vector mean of meteorological wind directions.
+
+    Wind direction is the direction *from* which the wind blows (deg, 0=N, 90=E).
+    """
+    u = v = 0.0
+    for deg, spd in dirs_speeds:
+        if deg is None or spd is None:
+            continue
+        rad = math.radians(deg)
+        u += spd * math.sin(rad)
+        v += spd * math.cos(rad)
+    if u == 0 and v == 0:
+        return None
+    return (math.degrees(math.atan2(u, v)) + 360) % 360
+
+
 def ensure_pressure_for_dates(dates):
-    """Fetch and cache MSL pressure at 07/12/17 local time for the given dates.
+    """Fetch and cache MSL pressure (07/12/17 local) and prevailing wind direction.
 
     Skips dates that are in the future or already fully populated. Idempotent.
     Fails silently on network/API errors so the calling page still renders.
@@ -43,7 +61,7 @@ def ensure_pressure_for_dates(dates):
     params = {
         "latitude": ZAGREB_LAT,
         "longitude": ZAGREB_LON,
-        "hourly": "pressure_msl",
+        "hourly": "pressure_msl,wind_direction_10m,wind_speed_10m",
         "timezone": "Europe/Zagreb",
         "past_days": past_days,
         "forecast_days": 1,
@@ -57,21 +75,30 @@ def ensure_pressure_for_dates(dates):
         logger.warning("Open-Meteo fetch failed: %s", exc)
         return
 
-    times = payload.get("hourly", {}).get("time", [])
-    pressures = payload.get("hourly", {}).get("pressure_msl", [])
+    hourly = payload.get("hourly", {})
+    times = hourly.get("time", [])
+    pressures = hourly.get("pressure_msl", [])
+    wind_dirs = hourly.get("wind_direction_10m", [])
+    wind_spds = hourly.get("wind_speed_10m", [])
 
-    by_date = {}
-    for t, p in zip(times, pressures):
-        if p is None:
-            continue
+    pressure_by_date = {}
+    wind_by_date = {}
+    for i, t in enumerate(times):
         date_part, time_part = t.split("T")
         d = date.fromisoformat(date_part)
         hour = int(time_part.split(":")[0])
-        by_date.setdefault(d, {})[hour] = p
+        p = pressures[i] if i < len(pressures) else None
+        if p is not None:
+            pressure_by_date.setdefault(d, {})[hour] = p
+        wd = wind_dirs[i] if i < len(wind_dirs) else None
+        ws = wind_spds[i] if i < len(wind_spds) else None
+        wind_by_date.setdefault(d, []).append((wd, ws))
 
     target_set = set(targets)
-    for d, by_hour in by_date.items():
-        if d not in target_set:
-            continue
+    for d in target_set:
+        by_hour = pressure_by_date.get(d, {})
         defaults = {col: by_hour.get(h) for col, h in zip(COLUMNS, HOURS)}
+        defaults["wind_direction"] = _prevailing_direction(wind_by_date.get(d, []))
+        if all(v is None for v in defaults.values()):
+            continue
         Pressure.objects.update_or_create(date=d, defaults=defaults)

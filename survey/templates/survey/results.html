@@ -21,6 +21,7 @@
             <th class="q-num">7h</th>
             <th class="q-num">12h</th>
             <th class="q-num">17h</th>
+            <th class="q-num">Vjetar</th>
           </tr>
         </thead>
         <tbody>
@@ -36,6 +37,7 @@
               <td class="q-num">{% if row.pressure.p_morning %}{{ row.pressure.p_morning|floatformat:1 }}{% else %}—{% endif %}</td>
               <td class="q-num">{% if row.pressure.p_noon %}{{ row.pressure.p_noon|floatformat:1 }}{% else %}—{% endif %}</td>
               <td class="q-num">{% if row.pressure.p_evening %}{{ row.pressure.p_evening|floatformat:1 }}{% else %}—{% endif %}</td>
+              <td class="q-num">{% if row.pressure.wind_direction != None %}{{ row.pressure.wind_cardinal }} ({{ row.pressure.wind_direction|floatformat:0 }}°){% else %}—{% endif %}</td>
             </tr>
           {% endfor %}
           {% if averages %}
@@ -50,11 +52,12 @@
               <td class="q-num"></td>
               <td class="q-num"></td>
               <td class="q-num"></td>
+              <td class="q-num"></td>
             </tr>
           {% endif %}
         </tbody>
       </table>
-      <p style="font-size: 13px; color: #555;">7h / 12h / 17h: tlak zraka u Zagrebu (hPa, MSL) — izvor: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>.</p>
+      <p style="font-size: 13px; color: #555;">7h / 12h / 17h: tlak zraka u Zagrebu (hPa, MSL); Vjetar: prevladavajući smjer (težinski po brzini) — izvor: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>.</p>
 
       <h3 style="margin-top: 28px;">Granične vrijednosti (Lovibond &amp; Lovibond, DASS-21)</h3>
       <table class="q-table" style="font-size: 14px;">
